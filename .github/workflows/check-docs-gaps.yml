@@ -1,0 +1,26 @@
+# Blocking status check — fails any PR that contains DOCS-GAPS.md.
+# Enable "No documentation gaps" as a required status check in branch
+# protection for the main/release branch (GitHub Settings → Branches →
+# Branch protection rules → Require status checks to pass before merging).
+
+name: Check documentation gaps
+
+on: [pull_request]
+
+jobs:
+  check:
+    name: No documentation gaps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if DOCS-GAPS.md exists
+        run: |
+          if [ -f "DOCS-GAPS.md" ]; then
+            echo "::error file=DOCS-GAPS.md::Documentation gaps detected. Resolve all items in DOCS-GAPS.md and delete the file before merging."
+            echo ""
+            echo "=== DOCS-GAPS.md ==="
+            cat DOCS-GAPS.md
+            exit 1
+          fi
+          echo "No documentation gaps found."
